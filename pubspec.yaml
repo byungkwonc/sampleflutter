@@ -1,0 +1,298 @@
+name: sampleflutter
+description: A new Flutter project.
+# The following line prevents the package from being accidentally published to
+# pub.dev using `flutter pub publish`. This is preferred for private packages.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+# The following defines the version and build number for your application.
+# A version number is three numbers separated by dots, like 1.2.43
+# followed by an optional build number separated by a +.
+# Both the version and the builder number may be overridden in flutter
+# build by specifying --build-name and --build-number, respectively.
+# In Android, build-name is used as versionName while build-number used as versionCode.
+# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
+# In iOS, build-name is used as CFBundleShortVersionString while build-number is used as CFBundleVersion.
+# Read more about iOS versioning at
+# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
+# In Windows, build-name is used as the major, minor, and patch parts
+# of the product and file versions while build-number is used as the build suffix.
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.1.2 <4.0.0'
+
+# Dependencies specify other packages that your package needs in order to work.
+# To automatically upgrade your package dependencies to the latest versions
+# consider running `flutter pub upgrade --major-versions`. Alternatively,
+# dependencies can be manually updated by changing the version numbers below to
+# the latest version available on pub.dev. To see which dependencies have newer
+# versions available, run `flutter pub outdated`.
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  cupertino_icons: ^1.0.2
+
+  # 얼마 전만 해도 get 라이브러리를 사용해서 상태관리와 라우팅, 의존성 주입을 한번에 해결하고 있었다.
+  # 하지만 너무나도 간편한 사용성 덕분에 복잡한 앱을 만들기에는 적절치 못하다는 생각을 하게 되었고, 다른 상태 관리 라이브러리를 찾아보았고
+  # riverpod과 flutter_bloc을 중에서 고민하게 되었다.
+  # 처음에 BLoC 패턴을 보았을 때는 굉장히 복잡하고 이렇게까지 해야 되나 싶었는데, 실제로 써보니까 event와 state를 주고 받는 것이 React에서 모든 상태 관리를 reducer로 하는 느낌이었다.
+  # flutter_bloc와 함께 data, domain, presentation으로 례이어를 구분한 아키텍처를 사용하고 있다.
+  get: ^4.6.6 #add by napico  $flutter pub add get
+  riverpod: ^2.4.0 #add by napico $flutter pub add riverpod
+  flutter_bloc: ^8.1.3 #add by napico $ flutter pub add flutter_bloc
+  go_router: ^11.0.0  #add by napico 원래는 get으로 라우팅을 처리했지만 flutter_bloc를 사용하면서 라우팅을 위한 라이브러리가 따로 필요해졌다. $ flutter pub add go_router
+  get_it: ^7.6.4  # get으로 사용하던 의존성 주입을 대신하기 위한 라이브러리이다. injectable 라이브러리와 같이 사용하면 데코레이터를 써서 편하게 의존성 주입을 사용할 수 있다. $ flutter pub add get_it
+  injectable: ^2.3.0  # $ flutter pub add injectable
+
+  # 프로젝트에 따라서 다국어를 지원해야 하는 경우가 있다. get에서 제공하는 i18n도 사용해봤고, 다른 패키지도 살펴보았지만 slang이 가장 마음에 들었다. context나 단수, 복수 지원 같은 것이 제일 끌리는 장점이었다.
+  # slang도 build_runner와 같이 쓸 수 있지만, build_runner를 사용할 경우에는 i18n 파일을 수정할 때 자동으로 slang_build_runner가 돌아가지 않는다. 그래서 slang만 따로 watch를 걸어줘야 한다.
+  # $ watchexec -r -w ./build.yaml dart run slang watch
+  slang: ^3.23.0  # $ flutter pub add slang
+
+  # flutter_gen은 에셋들을 하드코딩 하지 않고 Assets.경로.파일명.images() 처럼 사용하게 해주는 패키지이다. build_runner와 같이 쓰인다. 가끔씩 빌드가 꼬이는 경우가 있던데, 생성된 파일을 지우고 다시 돌려주면 잘 되는 것 같다.
+  # dart pub global activate flutter_gen
+
+  retrofit: ^4.0.1  # Flutter에서 사용할 API의 목록을 데코레이터와 함수 시그니쳐로만 작성해두면 자동으로 API 호출을 구현해주는 아주 편리한 라이브러리이다.
+                    # 원래 Android에서 많이 쓰이던 라이브러리였는데, 그곳에서 영감을 받아 Dart에서도 사용할 수 있게 만들었다. Dart에서 사용할 수 있는 HTTP 라이브러리인 dio와 함께 쓰인다.
+
+  freezed: ^2.4.2
+
+  flutter_native_splash: ^2.3.2 # Flutter에서 스플래시를 쉽게 구현할 수 있는 패키지이다. Android12에서 제공하는 새로운 Splash API를 지원하기 때문에 편하게 사용할 수 있다.
+  # 뿐만 아니라 앱의 초기 로딩이 끝날 때까지 Splash Screen을 유지할 수 있기 때문에 안 쓸 이유가 없다고 생각한다.
+  # 스플래시를 따로 구현하지 않으면 Flutter 앱 실행시에 빈 화면을 보게 된다. 레포지토리의 README.md 파일을 읽고 스플래시 이미지 경로를 설정한 다음에 명령어를 실행하면 각 플랫폼 별 스플래시가 설정된다.
+  # https://github.com/jonbhanson/flutter_native_splash
+  # dart run flutter_native_splash:create
+flutter_native_splash:
+  # This package generates native code to customize Flutter's default white native splash screen
+  # with background color and splash image.
+  # Customize the parameters below, and run the following command in the terminal:
+  # dart run flutter_native_splash:create
+  # To restore Flutter's default white splash screen, run the following command in the terminal:
+  # dart run flutter_native_splash:remove
+
+  # color or background_image is the only required parameter.  Use color to set the background
+  # of your splash screen to a solid color.  Use background_image to set the background of your
+  # splash screen to a png image.  This is useful for gradients. The image will be stretch to the
+  # size of the app. Only one parameter can be used, color and background_image cannot both be set.
+  color: "#42a5f5"
+  #background_image: "assets/background.png"
+
+  # Optional parameters are listed below.  To enable a parameter, uncomment the line by removing
+  # the leading # character.
+
+  # The image parameter allows you to specify an image used in the splash screen.  It must be a
+  # png file and should be sized for 4x pixel density.
+  #image: assets/splash.png
+
+  # The branding property allows you to specify an image used as branding in the splash screen.
+  # It must be a png file. It is supported for Android, iOS and the Web.  For Android 12,
+  # see the Android 12 section below.
+  #branding: assets/dart.png
+
+  # To position the branding image at the bottom of the screen you can use bottom, bottomRight,
+  # and bottomLeft. The default values is bottom if not specified or specified something else.
+  #branding_mode: bottom
+
+  # The color_dark, background_image_dark, image_dark, branding_dark are parameters that set the background
+  # and image when the device is in dark mode. If they are not specified, the app will use the
+  # parameters from above. If the image_dark parameter is specified, color_dark or
+  # background_image_dark must be specified.  color_dark and background_image_dark cannot both be
+  # set.
+  #color_dark: "#042a49"
+  #background_image_dark: "assets/dark-background.png"
+  #image_dark: assets/splash-invert.png
+  #branding_dark: assets/dart_dark.png
+
+  # Android 12 handles the splash screen differently than previous versions.  Please visit
+  # https://developer.android.com/guide/topics/ui/splash-screen
+  # Following are Android 12 specific parameter.
+  android_12:
+  # The image parameter sets the splash screen icon image.  If this parameter is not specified,
+  # the app's launcher icon will be used instead.
+  # Please note that the splash screen will be clipped to a circle on the center of the screen.
+  # App icon with an icon background: This should be 960×960 pixels, and fit within a circle
+  # 640 pixels in diameter.
+  # App icon without an icon background: This should be 1152×1152 pixels, and fit within a circle
+  # 768 pixels in diameter.
+  #image: assets/android12splash.png
+
+  # Splash screen background color.
+  #color: "#42a5f5"
+
+  # App icon background color.
+  #icon_background_color: "#111111"
+
+  # The branding property allows you to specify an image used as branding in the splash screen.
+  #branding: assets/dart.png
+
+  # The image_dark, color_dark, icon_background_color_dark, and branding_dark set values that
+  # apply when the device is in dark mode. If they are not specified, the app will use the
+  # parameters from above.
+  #image_dark: assets/android12splash-invert.png
+  #color_dark: "#042a49"
+  #icon_background_color_dark: "#eeeeee"
+
+  # The android, ios and web parameters can be used to disable generating a splash screen on a given
+  # platform.
+  #android: false
+  #ios: false
+  #web: false
+
+  # Platform specific images can be specified with the following parameters, which will override
+  # the respective parameter.  You may specify all, selected, or none of these parameters:
+  #color_android: "#42a5f5"
+  #color_dark_android: "#042a49"
+  #color_ios: "#42a5f5"
+  #color_dark_ios: "#042a49"
+  #color_web: "#42a5f5"
+  #color_dark_web: "#042a49"
+  #image_android: assets/splash-android.png
+  #image_dark_android: assets/splash-invert-android.png
+  #image_ios: assets/splash-ios.png
+  #image_dark_ios: assets/splash-invert-ios.png
+  #image_web: assets/splash-web.gif
+  #image_dark_web: assets/splash-invert-web.gif
+  #background_image_android: "assets/background-android.png"
+  #background_image_dark_android: "assets/dark-background-android.png"
+  #background_image_ios: "assets/background-ios.png"
+  #background_image_dark_ios: "assets/dark-background-ios.png"
+  #background_image_web: "assets/background-web.png"
+  #background_image_dark_web: "assets/dark-background-web.png"
+  #branding_android: assets/brand-android.png
+  #branding_dark_android: assets/dart_dark-android.png
+  #branding_ios: assets/brand-ios.gif
+  #branding_dark_ios: assets/dart_dark-ios.gif
+
+  # The position of the splash image can be set with android_gravity, ios_content_mode, and
+  # web_image_mode parameters.  All default to center.
+  #
+  # android_gravity can be one of the following Android Gravity (see
+  # https://developer.android.com/reference/android/view/Gravity): bottom, center,
+  # center_horizontal, center_vertical, clip_horizontal, clip_vertical, end, fill, fill_horizontal,
+  # fill_vertical, left, right, start, or top.
+  #android_gravity: center
+  #
+  # ios_content_mode can be one of the following iOS UIView.ContentMode (see
+  # https://developer.apple.com/documentation/uikit/uiview/contentmode): scaleToFill,
+  # scaleAspectFit, scaleAspectFill, center, top, bottom, left, right, topLeft, topRight,
+  # bottomLeft, or bottomRight.
+  #ios_content_mode: center
+  #
+  # web_image_mode can be one of the following modes: center, contain, stretch, and cover.
+  #web_image_mode: center
+
+  # The screen orientation can be set in Android with the android_screen_orientation parameter.
+  # Valid parameters can be found here:
+  # https://developer.android.com/guide/topics/manifest/activity-element#screen
+  #android_screen_orientation: sensorLandscape
+
+  # To hide the notification bar, use the fullscreen parameter.  Has no effect in web since web
+  # has no notification bar.  Defaults to false.
+  # NOTE: Unlike Android, iOS will not automatically show the notification bar when the app loads.
+  #       To show the notification bar, add the following code to your Flutter app:
+  #       WidgetsFlutterBinding.ensureInitialized();
+  #       SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: [SystemUiOverlay.bottom, SystemUiOverlay.top], );
+  #fullscreen: true
+
+  # If you have changed the name(s) of your info.plist file(s), you can specify the filename(s)
+  # with the info_plist_files parameter.  Remove only the # characters in the three lines below,
+  # do not remove any spaces:
+  #info_plist_files:
+  #  - 'ios/Runner/Info-Debug.plist'
+  #  - 'ios/Runner/Info-Release.plist'
+
+dev_dependencies:
+  flutter_launcher_icons: "^0.13.1" # Flutter에서 앱 아이콘을 쉽게 설정할 수 있게 도와주는 패키지이다. 레포지토리의 README.md 파일을 읽고 아이콘을 설정한 다음에 명령어를 실행하면 각 플랫폼 별 아이콘이 생성된다.
+                                    # https://github.com/fluttercommunity/flutter_launcher_icons
+                                    # $ dart run flutter_launcher_icons
+
+  flutter_test:
+    sdk: flutter
+
+  # The "flutter_lints" package below contains a set of recommended lints to
+  # encourage good coding practices. The lint set provided by the package is
+  # activated in the `analysis_options.yaml` file located at the root of your
+  # package. See that file for information about deactivating specific lint
+  # rules and activating additional ones.
+  flutter_lints: ^2.0.0
+  build_runner: ^2.4.6  # Dart 개발시에는 유독 build_runner를 사용해서 코드를 동적으로 생성하는 것을 많이 보게 된다.
+                          # build_runner는 watch라는 명령어가 있어서 dart run build_runner watch와 같이 쓰면 파일이 변경 될 때마다 generated file도 다시 생성 되기 때문에 편리한데,
+                        # build_runner는 pubspec.lock 파일이 변경 되면 꺼진다는 문제가 있다.
+                        # 이점을 보완하기 위해서 watchexec라는 프로그램과 같이 혼용해서 사용한다.
+                        # 대부분의 패키지 매니저를 사용해서 watchexec를 설치할 수 있고 (brew install watchexec), 설치하고 나면 다음과 같은 명령어로 build_runner와 같이 사용한다.
+                        #  watchexec -r -w ./pubspec.lock dart run build_runner watch
+                        # $ dart pub add build_runner --dev
+  json_serializable: ^6.7.1 # retrofit을 사용하기 위해서는 HTTP 통신에 사용되는 serialized 형태인 JSON과 Dart 객체를 연결해주어야 한다. 이 때 json_serializable이 유용하게 쓰인다.
+                          # 또한 freezed와 함께 쓴다면 freezed가 ==, hashCode, copyWith 등을 알아서 구현해주기 때문에 더 편리하다.
+                          # retrofit과 json_serializable을 같이 사용하면 빌드 순서가 꼬이는 문제가 생길 수 있는데, build.yaml파일에서 json_serializable이 먼저 실행 되고 나서 retrofit이 실행 되게끔 우선 순위를 정해줄 수 있다.
+                          # global_options:
+                          #  json_serializable:
+                          #    runs_before:
+                          #      - retrofit_generator
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon/icon.png"
+  min_sdk_android: 21 # android min sdk min:16, default 21
+  web:
+    generate: true
+    image_path: "path/to/image.png"
+    background_color: "#hexcode"
+    theme_color: "#hexcode"
+  windows:
+    generate: true
+    image_path: "path/to/image.png"
+    icon_size: 48 # min:48, max:256, default: 48
+  macos:
+    generate: true
+    image_path: "path/to/image.png"
+
+
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+# The following section is specific to Flutter packages.
+flutter:
+
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
+  uses-material-design: true
+
+  # To add assets to your application, add an assets section, like this:
+  # assets:
+  #   - images/a_dot_burr.jpeg
+  #   - images/a_dot_ham.jpeg
+
+  # An image asset can refer to one or more resolution-specific "variants", see
+  # https://flutter.dev/assets-and-images/#resolution-aware
+
+  # For details regarding adding assets from package dependencies, see
+  # https://flutter.dev/assets-and-images/#from-packages
+
+  # To add custom fonts to your application, add a fonts section here,
+  # in this "flutter" section. Each entry in this list should have a
+  # "family" key with the font family name, and a "fonts" key with a
+  # list giving the asset and other descriptors for the font. For
+  # example:
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: fonts/Schyler-Italic.ttf
+  #         style: italic
+  #   - family: Trajan Pro
+  #     fonts:
+  #       - asset: fonts/TrajanPro.ttf
+  #       - asset: fonts/TrajanPro_Bold.ttf
+  #         weight: 700
+  #
+  # For details regarding fonts from package dependencies,
+  # see https://flutter.dev/custom-fonts/#from-packages
+
+## https://blog.paperst.ar/posts/2023/08/24/my-flutter-development-environment/
